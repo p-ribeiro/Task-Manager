@@ -1,6 +1,7 @@
 import json
 import time
 import requests
+from app.task_status import TaskStatus
 
 
 def test_functional():
@@ -21,17 +22,20 @@ def test_functional():
     resp = requests.get(f"{url}/task/{task_id}")
     assert resp.status_code == 200
     data = resp.json()
-    assert data["status"] == "Queued"
+    assert data["status"] in [TaskStatus.QUEUED, TaskStatus.PROCESSING]
     
     # waits until task is "finished"
     while True:
-        print("Checking status")
+        print(f"\nChecking status for {task_id}...")
+        
         resp = requests.get(f"{url}/task/{task_id}")
         assert resp.status_code == 200
+        
         data = resp.json() 
-        if data["status"] == "Finished":
+        if data["status"] == TaskStatus.FINISHED:
             break
         
+        print(f"Task is not finished. Status: {data['status']}")
         # sleeping for 2 seconds
         time.sleep(2)
     

@@ -3,6 +3,8 @@ import time
 from app.rabbimq import Rabbitmq
 from redis import Redis
 
+from app.task_status import TaskStatus
+
 
 def process_message(ch, method, properties, body):
     
@@ -11,7 +13,7 @@ def process_message(ch, method, properties, body):
     
     redis = Redis(host="localhost", port=6379, decode_responses=True)
     data = {
-        "status": "Processing",
+        "status": TaskStatus.PROCESSING,
         "result": ""
     }
     
@@ -26,7 +28,7 @@ def process_message(ch, method, properties, body):
     if operation == "reverse":
         result = task["data"][::-1]
     
-    data["status"] = "Finished"
+    data["status"] = TaskStatus.FINISHED
     data["result"] = result
     redis.set(f"{task_id}", json.dumps(data))
     

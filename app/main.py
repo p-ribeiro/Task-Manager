@@ -7,6 +7,7 @@ from uuid import uuid7
 from redis.asyncio import Redis
 
 from app.producer import produce_task
+from app.task_status import TaskStatus
 
 class Task(BaseModel):
     operation: str
@@ -35,7 +36,7 @@ async def submit_task(task: Task, redis: Redis = Depends(get_redis)):
     # generate task-id
     task_uuid = str(uuid7())
     data = {
-        "status": "Queued",
+        "status": TaskStatus.QUEUED,
         "result": ""
     }
     data_json = json.dumps(data)
