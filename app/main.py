@@ -7,7 +7,7 @@ from uuid import uuid7
 from redis.asyncio import Redis
 
 from app.producer import produce_task
-from app.task_status import TaskStatus
+from app.enums.task_status import TaskStatus
 
 class Task(BaseModel):
     operation: str

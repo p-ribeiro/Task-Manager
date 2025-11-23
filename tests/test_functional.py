@@ -1,7 +1,7 @@
 import json
 import time
 import requests
-from app.task_status import TaskStatus
+from app.enums.task_status import TaskStatus
 
 
 def test_functional():

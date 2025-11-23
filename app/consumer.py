@@ -3,7 +3,29 @@ import time
 from app.rabbimq import Rabbitmq
 from redis import Redis
 
-from app.task_status import TaskStatus
+from app.enums.task_status import TaskStatus
+from app.enums.task_operations import TaskOperations
+
+def do_op(operation: str, data: str) -> str:
+    
+    match operation:
+        case TaskOperations.REVERSE:
+            return data[::-1]
+        case TaskOperations.COUNT_WORDS:
+            return str(len(data.split()))
+        case TaskOperations.COUNT_LETTERS:
+            words = data.split()
+            letters = 0
+            for word in words:
+                letters += len(word)
+            return str(letters)
+
+        case TaskOperations.UPPERCASE:
+            return data.upper()
+        case TaskOperations.LOWERCASE:
+            return data.lower()
+        case _:
+            return ""    
 
 
 def process_message(ch, method, properties, body):
@@ -23,11 +45,9 @@ def process_message(ch, method, properties, body):
     
     operation = task["operation"]
     
+    result = do_op(operation, task["data"]) 
     time.sleep(10)
-    result = ""
-    if operation == "reverse":
-        result = task["data"][::-1]
-    
+
     data["status"] = TaskStatus.FINISHED
     data["result"] = result
     redis.set(f"{task_id}", json.dumps(data))
