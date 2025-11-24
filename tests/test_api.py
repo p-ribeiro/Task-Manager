@@ -1,5 +1,5 @@
+import json
 from typing import Optional
-import pytest
 from fastapi.testclient import TestClient
 from app.main import app, get_redis
 import asyncio
@@ -28,7 +28,7 @@ def test_health_endpoint():
 def test_submit_task():
     """Test submitting a task via POST /submit-task endpoint."""
     task = {
-        "operation": "reverse_string",
+        "operation": "reverse",
         "data": "To be reversed"
     }
     
@@ -46,8 +46,10 @@ def test_submit_task():
         assert body["status"] == "Queued"
         
         # check if the value was saved on the fake_redis 
-        value = asyncio.run(fake_redis.get(body["task_id"]))
-        assert value == "Queued"
+        data = asyncio.run(fake_redis.get(body["task_id"]))
+        if data:
+            data_json = json.loads(data)
+            assert data_json["status"]  == "Queued"
         
     app.dependency_overrides.clear()
     

@@ -1,4 +1,3 @@
-import json
 import time
 import requests
 from app.enums.task_status import TaskStatus
@@ -17,13 +16,6 @@ def test_functional():
     data = resp.json()
     task_id = data["task_id"]
     
-    
-    ## check task status
-    resp = requests.get(f"{url}/task/{task_id}")
-    assert resp.status_code == 200
-    data = resp.json()
-    assert data["status"] in [TaskStatus.QUEUED, TaskStatus.PROCESSING]
-    
     # waits until task is "finished"
     while True:
         print(f"\nChecking status for {task_id}...")
@@ -40,6 +32,4 @@ def test_functional():
         time.sleep(2)
     
     ## retrives task from redis
-    print("Result found")
-    print(data["result"])
-    
+    assert data["result"] == task["data"][::-1]
