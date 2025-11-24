@@ -21,8 +21,6 @@ async def lifespan(app: FastAPI):
     await app.state.redis.aclose()
 
 app = FastAPI(lifespan=lifespan)
-redis_client: Redis | None
-
 
 def get_redis() -> Redis:
     return app.state.redis
@@ -63,14 +61,17 @@ async def get_task(
     
     
     task = await redis.get(task_id)
-    task_json = json.loads(task)
-    
     if not task:
         response.status_code = status.HTTP_204_NO_CONTENT
         return 
+    
+    try:
+        task_json = json.loads(task)
+    except (TypeError, json.JSONDecodeError):
+        # stored value is not JSON (e.g. a plain string) — return it as status
+        return {"status": task, "result": ""}
     
     return {
         "status": task_json["status"],
         "result": task_json["result"]
     }
-    

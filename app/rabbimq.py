@@ -47,7 +47,7 @@ class Rabbitmq:
             self._connection.close()
             self._connection = None
             self._channel = None
-            print("RABBITMQ connection closed.")
+            # print("RABBITMQ connection closed.")
             
             
         
