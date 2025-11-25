@@ -1,9 +1,10 @@
 import json
-from app.rabbimq import Rabbitmq
+
 from redis import Redis
 
-from app.enums.task_status import TaskStatus
 from app.enums.task_operations import TaskOperations
+from app.enums.task_status import TaskStatus
+from app.rabbimq import Rabbitmq
 
 
 def do_op(operation: str, data: str) -> str:

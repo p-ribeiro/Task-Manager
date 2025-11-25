@@ -1,14 +1,15 @@
-from typing import Optional, Annotated
-from sqlmodel import Session, select
-from datetime import datetime, timezone, timedelta
-from fastapi import Depends, HTTPException, status
-from pwdlib import PasswordHash
-import jwt
-from jwt.exceptions import InvalidTokenError
-from fastapi.security import OAuth2PasswordBearer
+from datetime import datetime, timedelta, timezone
+from typing import Annotated, Optional
 
-from app.models import User, TokenData
+import jwt
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
+from jwt.exceptions import InvalidTokenError
+from pwdlib import PasswordHash
+from sqlmodel import Session, select
+
 from app.database import get_session
+from app.models import TokenData, User
 
 SessionDep = Annotated[Session, Depends(get_session)]
 

@@ -1,8 +1,10 @@
+import asyncio
 import json
 from typing import Optional
+
 from fastapi.testclient import TestClient
+
 from app.api import app, get_redis
-import asyncio
 
 
 class FakeRedis:

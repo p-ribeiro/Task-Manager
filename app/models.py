@@ -1,6 +1,8 @@
 from typing import Optional
-from sqlmodel import SQLModel, Field
+
 from pydantic import BaseModel
+from sqlmodel import Field, SQLModel
+
 from app.enums.task_operations import TaskOperations
 
 

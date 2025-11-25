@@ -1,4 +1,5 @@
 import json
+
 import app.consumer as consumer
 from app.consumer import process_message
 

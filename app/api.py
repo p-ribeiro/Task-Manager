@@ -1,24 +1,24 @@
-from contextlib import asynccontextmanager
 import json
-from typing import Optional, Annotated
-from fastapi import Depends, FastAPI, Response, status, HTTPException
-from fastapi.security import OAuth2PasswordRequestForm
+from contextlib import asynccontextmanager
+from datetime import timedelta
+from typing import Annotated, Optional
 from uuid import uuid7
+
+from fastapi import Depends, FastAPI, HTTPException, Response, status
+from fastapi.security import OAuth2PasswordRequestForm
 from redis.asyncio import Redis
 
-from datetime import timedelta
-
 from app.database import create_db_and_tables
-from app.models import User, Token, Task, RegisterForm
-from app.producer import produce_task
 from app.enums.task_status import TaskStatus
+from app.models import RegisterForm, Task, Token, User
+from app.producer import produce_task
 from app.utils.authentication import (
+    ACCESS_TOKEN_EXPIRE_MINUTES,
     SessionDep,
-    get_password_hash,
-    get_current_active_user,
     authenticate_user,
     create_access_token,
-    ACCESS_TOKEN_EXPIRE_MINUTES,
+    get_current_active_user,
+    get_password_hash,
 )
 
 
