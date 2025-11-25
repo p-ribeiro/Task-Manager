@@ -5,7 +5,7 @@ from typing import Optional
 from fastapi.testclient import TestClient
 
 from app.api import app, get_redis
-
+import app.api as api_module
 
 class FakeRedis:
     def __init__(self):
@@ -37,23 +37,34 @@ def test_submit_task():
     fake_redis = FakeRedis()
     app.dependency_overrides[get_redis] = lambda: fake_redis
 
-    with TestClient(app) as client:
-        resp = client.post("/submit-task", json=task)
-        assert resp.status_code == 201
+    # patching producer to avoid side effects
+    original_producer = api_module.produce_task
+    api_module.produce_task = lambda *_: None
+    
+    # override the get_current_active_user dependency used in app.api
+    fake_user = type("FakeUser", (), {"username": "tester"})()
+    app.dependency_overrides[api_module.get_current_active_user] = lambda: fake_user
+    
+    
+    try:    
+        with TestClient(app) as client:
+            resp = client.post("/submit-task", json=task)
+            assert resp.status_code == 201
 
-        body = resp.json()
-        assert "task_id" in body
-        assert isinstance(body["task_id"], str)
-        assert "status" in body
-        assert body["status"] == "Queued"
+            body = resp.json()
+            assert "task_id" in body
+            assert isinstance(body["task_id"], str)
+            assert "status" in body
+            assert body["status"] == "Queued"
 
-        # check if the value was saved on the fake_redis
-        data = asyncio.run(fake_redis.get(body["task_id"]))
-        if data:
+            # check if the value was saved on the fake_redis
+            data = asyncio.run(fake_redis.get(body["task_id"]))
+            assert data is not None
             data_json = json.loads(data)
             assert data_json["status"] == "Queued"
-
-    app.dependency_overrides.clear()
+    finally:
+        api_module.produce_task = original_producer
+        app.dependency_overrides.clear()
 
 
 def test_submit_incorrect_task():

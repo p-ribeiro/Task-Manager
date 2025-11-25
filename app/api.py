@@ -106,7 +106,6 @@ async def submit_task(
     return {
         "task_id": task_uuid,
         "status": data["status"],
-        # "token": token
     }
 
 
