@@ -17,3 +17,8 @@ dependencies = [
     "sqlalchemy>=2.0.44",
     "sqlmodel>=0.0.27",
 ]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.14.6",
+]

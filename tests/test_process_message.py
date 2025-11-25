@@ -2,6 +2,7 @@ import json
 import app.consumer as consumer
 from app.consumer import process_message
 
+
 class FakeRedis:
     def __init__(self):
         self.store = {}
@@ -11,6 +12,7 @@ class FakeRedis:
         self.calls.append((k, v))
         self.store[k] = v
 
+
 class FakeChannel:
     def __init__(self):
         self.acked = []
@@ -18,9 +20,11 @@ class FakeChannel:
     def basic_ack(self, delivery_tag=None, **kwargs):
         self.acked.append(delivery_tag)
 
+
 class FakeMethod:
     def __init__(self, delivery_tag):
         self.delivery_tag = delivery_tag
+
 
 def test_process_message_ack(monkeypatch):
     fake_redis = FakeRedis()
@@ -40,6 +44,7 @@ def test_process_message_ack(monkeypatch):
     assert stored["status"] == "Finished"
     assert stored["result"] == "cba"
     assert channel.acked == [123]
+
 
 def test_process_message_no_ack(monkeypatch):
     fake_redis = FakeRedis()

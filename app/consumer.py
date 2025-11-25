@@ -1,14 +1,14 @@
 import json
-import time
 from app.rabbimq import Rabbitmq
 from redis import Redis
 
 from app.enums.task_status import TaskStatus
 from app.enums.task_operations import TaskOperations
 
+
 def do_op(operation: str, data: str) -> str:
     op = operation.lower() if isinstance(operation, str) else ""
-    
+
     match op:
         case TaskOperations.REVERSE.value:
             return data[::-1]
@@ -25,42 +25,39 @@ def do_op(operation: str, data: str) -> str:
         case TaskOperations.LOWERCASE.value:
             return data.lower()
         case _:
-            return ""    
+            return ""
 
 
 def process_message(ch, method, properties, body):
-    
     message = body.decode() if isinstance(body, (bytes, bytearray)) else body
-    
+
     redis = Redis(host="localhost", port=6379, decode_responses=True)
-    data = {
-        "status": TaskStatus.PROCESSING,
-        "result": ""
-    }
-    
+    data = {"status": TaskStatus.PROCESSING, "result": ""}
+
     task = json.loads(message)
     task_id = task["id"]
     redis.set(f"{task_id}", json.dumps(data))
-    
+
     operation = task["operation"]
     result = do_op(operation, task["data"])
 
     data["status"] = TaskStatus.FINISHED
     data["result"] = result
     redis.set(f"{task_id}", json.dumps(data))
-    
+
     if method:
-        ch.basic_ack(delivery_tag=method.delivery_tag)    
-    
+        ch.basic_ack(delivery_tag=method.delivery_tag)
+
 
 def consumer():
     rabbimq = Rabbitmq()
     channel = rabbimq.get_channel()
-    
+
     if channel:
         channel.queue_declare(queue="tasks", durable=True)
         channel.basic_consume(queue="tasks", on_message_callback=process_message)
         channel.start_consuming()
+
 
 if __name__ == "__main__":
     consumer()
