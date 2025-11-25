@@ -4,6 +4,7 @@ from datetime import timedelta
 from typing import Annotated, Optional
 from uuid import uuid7
 
+from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, HTTPException, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
 from redis.asyncio import Redis
@@ -20,6 +21,8 @@ from app.utils.authentication import (
     get_current_active_user,
     get_password_hash,
 )
+
+load_dotenv()
 
 
 @asynccontextmanager

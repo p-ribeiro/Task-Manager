@@ -2,9 +2,6 @@ import os
 
 import pika
 import pika.exceptions
-from dotenv import load_dotenv
-
-load_dotenv()
 
 
 class Rabbitmq:

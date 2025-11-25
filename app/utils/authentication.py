@@ -1,3 +1,4 @@
+import os
 from datetime import datetime, timedelta, timezone
 from typing import Annotated, Optional
 
@@ -13,7 +14,7 @@ from app.models import TokenData, User
 
 SessionDep = Annotated[Session, Depends(get_session)]
 
-SECRET_KEY = "72df37c496cff8090711a951b7f474d1e00d4c2d5a93db887c00d1c2e5b3d640"
+SECRET_KEY = os.getenv("SECRET_KEY", "s3cr3t5")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
