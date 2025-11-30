@@ -1,7 +1,9 @@
+from time import sleep
 import requests
 from fastapi import status
 
 from app.enums.task_operations import TaskOperations
+from app.enums.task_status import TaskStatus
 
 
 def test_functional():
@@ -36,31 +38,22 @@ def test_functional():
     task = {"operation": "reverse", "data": "This should be reversed"}
     resp = requests.post(f"{url}/submit-task", json=task, headers=header)
     assert resp.status_code == status.HTTP_201_CREATED
-
+    data = resp.json()
+    assert "task_id" in data
+    
+    task_id = data["task_id"]
     ## User waits for task to be completed
-
+    while True:
+        print(f"\nChecking status for task {task_id}")
+        resp = requests.get(f"{url}/task/{task_id}")
+        assert resp.status_code == 200
+        data = resp.json()
+        if data["status"] == TaskStatus.FINISHED:
+            break
+        print(f"\nTask is not finished. Status: {data['status']}")
+        
+        sleep(2)
+        
+    
     ## Checks if response is expected
-
-    # ## send a task via api
-    # resp = requests.post(f"{url}/submit-task", json=task)
-    # assert resp.status_code == 201
-    # data = resp.json()
-    # task_id = data["task_id"]
-
-    # # waits until task is "finished"
-    # while True:
-    #     print(f"\nChecking status for {task_id}...")
-
-    #     resp = requests.get(f"{url}/task/{task_id}")
-    #     assert resp.status_code == 200
-
-    #     data = resp.json()
-    #     if data["status"] == TaskStatus.FINISHED:
-    #         break
-
-    #     print(f"Task is not finished. Status: {data['status']}")
-    #     # sleeping for 2 seconds
-    #     time.sleep(2)
-
-    # ## retrives task from redis
-    # assert data["result"] == task["data"][::-1]
+    assert data["result"] == task["data"][::-1]
