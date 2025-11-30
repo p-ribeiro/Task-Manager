@@ -35,13 +35,17 @@ See pyproject.toml for exact dependency pins. Key modules used:
    ```bash
    docker compose up -d
    ```
-2. Run the API:
+2. Run the API in development mode:
    ```bash
-   uvicorn app.api:app --reload --host 0.0.0.0 --port 8000
+   uv fastapi dev app/api.py
    ```
-3. Run tests:
+3. Run the consumer:
+  ```bash
+  uv run python app/consumer.py
+  ```
+4. Run tests:
    ```bash
-   pytest
+   uv run pytest
    ```
 
 ## API — short overview
